@@ -30,6 +30,7 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "ti/driverlib/dl_dma.h"
 #include "ti_msp_dl_config.h"
 
 #define SI 4095
@@ -58,16 +59,16 @@ int main(void)
     NVIC_EnableIRQ(UART_0_INST_INT_IRQN);
     /* Configure DMA source, destination and size */
     
-    DL_DMA_setSrcAddr(
-        DMA, DMA_CH0_CHAN_ID, (uint32_t) &gOutputSignalSquare64[0]);
+    DL_DMA_setSrcAddr(DMA, DMA_CH0_CHAN_ID, (uint32_t) &gOutputSignalSine64[0]);
     DL_DMA_setDestAddr(DMA, DMA_CH0_CHAN_ID, (uint32_t) & (DAC0->DATA0));
-    DL_DMA_setTransferSize(
-        DMA, DMA_CH0_CHAN_ID, sizeof(gOutputSignalSquare64) / sizeof(uint16_t));
+    DL_DMA_setTransferSize(DMA, DMA_CH0_CHAN_ID, sizeof(gOutputSignalSine64) / sizeof(uint16_t));
 
     DL_DMA_enableChannel(DMA, DMA_CH0_CHAN_ID);
     
     DL_SYSCTL_enableSleepOnExit();
     while (1) {
+        
+        
         __WFI();
     }
 }
@@ -79,6 +80,23 @@ void UART_0_INST_IRQHandler(void)
             //DL_GPIO_togglePins(GPIO_LEDS_PORT,GPIO_LEDS_USER_LED_1_PIN | GPIO_LEDS_USER_TEST_PIN);
             gEchoData = DL_UART_Main_receiveData(UART_0_INST);
             DL_UART_Main_transmitData(UART_0_INST, gEchoData);
+            if (gEchoData == '1') {
+                DL_DMA_disableChannel(DMA, DMA_CH0_CHAN_ID);
+                DL_DMA_setSrcAddr(DMA, DMA_CH0_CHAN_ID, (uint32_t) &gOutputSignalSquare64[0]);
+                DL_DMA_setDestAddr(DMA, DMA_CH0_CHAN_ID, (uint32_t) & (DAC0->DATA0));
+                DL_DMA_setTransferSize(DMA, DMA_CH0_CHAN_ID, sizeof(gOutputSignalSquare64) / sizeof(uint16_t));
+                DL_DMA_enableChannel(DMA, DMA_CH0_CHAN_ID);
+                
+                
+            }
+            else if (gEchoData == '2') {
+                DL_DMA_disableChannel(DMA, DMA_CH0_CHAN_ID);
+                DL_DMA_setSrcAddr(DMA, DMA_CH0_CHAN_ID, (uint32_t) &gOutputSignalSine64[0]);
+                DL_DMA_setDestAddr(DMA, DMA_CH0_CHAN_ID, (uint32_t) & (DAC0->DATA0));
+                DL_DMA_setTransferSize(DMA, DMA_CH0_CHAN_ID, sizeof(gOutputSignalSine64) / sizeof(uint16_t));
+                DL_DMA_enableChannel(DMA, DMA_CH0_CHAN_ID);
+                
+            }
             break;
         default:
             break;
