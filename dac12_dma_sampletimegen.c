@@ -32,7 +32,7 @@
 
 #include "ti_msp_dl_config.h"
 
-#define SQUARE_INT 4095
+#define SI 4095
 
 
 /* Repetitive sine wave */
@@ -43,9 +43,8 @@ const uint16_t gOutputSignalSine64[] = {2048, 2248, 2447, 2642, 2831, 3013,
     241, 155, 88, 39, 9, 0, 9, 39, 88, 155, 241, 345, 464, 599, 748, 910, 1082,
     1264, 1453, 1648, 1847};
 
-uint16_t gOutputSignalSquare64[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-                                SQUARE_INT,SQUARE_INT,SQUARE_INT,SQUARE_INT,SQUARE_INT,SQUARE_INT,SQUARE_INT,SQUARE_INT,SQUARE_INT,SQUARE_INT,SQUARE_INT,SQUARE_INT,SQUARE_INT,SQUARE_INT,SQUARE_INT,SQUARE_INT,SQUARE_INT,SQUARE_INT,
-                                SQUARE_INT,SQUARE_INT,SQUARE_INT,SQUARE_INT,SQUARE_INT,SQUARE_INT,SQUARE_INT,SQUARE_INT,SQUARE_INT,SQUARE_INT,SQUARE_INT,SQUARE_INT,SQUARE_INT,SQUARE_INT,SQUARE_INT,SQUARE_INT,SQUARE_INT,SQUARE_INT};
+uint16_t gOutputSignalSquare64[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+                               SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI};
 uint16_t gOutputSignalOff64[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 
 
@@ -60,10 +59,10 @@ int main(void)
     /* Configure DMA source, destination and size */
     
     DL_DMA_setSrcAddr(
-        DMA, DMA_CH0_CHAN_ID, (uint32_t) &gOutputSignalSine64[0]);
+        DMA, DMA_CH0_CHAN_ID, (uint32_t) &gOutputSignalSquare64[0]);
     DL_DMA_setDestAddr(DMA, DMA_CH0_CHAN_ID, (uint32_t) & (DAC0->DATA0));
     DL_DMA_setTransferSize(
-        DMA, DMA_CH0_CHAN_ID, sizeof(gOutputSignalSine64) / sizeof(uint16_t));
+        DMA, DMA_CH0_CHAN_ID, sizeof(gOutputSignalSquare64) / sizeof(uint16_t));
 
     DL_DMA_enableChannel(DMA, DMA_CH0_CHAN_ID);
     
