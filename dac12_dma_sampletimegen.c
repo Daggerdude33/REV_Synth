@@ -32,9 +32,25 @@
 
 #include "ti/driverlib/dl_dma.h"
 #include "ti_msp_dl_config.h"
+#define COUNT 2048
+
 
 #define SI 4095
 
+enum Note{
+    C,
+    Csh,
+    D,
+    Dsh,
+    E,
+    F,
+    Fsh,
+    G,
+    Gsh,
+    A,
+    Ash,
+    B,
+}pNote;
 
 /* Repetitive sine wave */
 const uint16_t gOutputSignalSine64[] = {2048, 2248, 2447, 2642, 2831, 3013,
@@ -44,13 +60,38 @@ const uint16_t gOutputSignalSine64[] = {2048, 2248, 2447, 2642, 2831, 3013,
     241, 155, 88, 39, 9, 0, 9, 39, 88, 155, 241, 345, 464, 599, 748, 910, 1082,
     1264, 1453, 1648, 1847};
 
-uint16_t gOutputSignalSquare64[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-                               SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI};
-uint16_t gOutputSignalOff64[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+
+uint16_t gOutputSignalSquare64[COUNT];
+uint16_t gOutputSignalOff64[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 
 
 volatile uint8_t gEchoData = 0;
 uint64_t N = 0; //Sample Size
+//pNote = A;
+void note_switch(uint64_t sample){
+    switch (pNote){
+        case A:
+            sample = 2;
+
+        
+    
+    }
+}
+uint16_t count = COUNT;
+
+void sample_finder(uint16_t count){
+    
+    for(uint64_t i = 0; i < (count); i++){
+        if (i < (count/2)) {
+            gOutputSignalSquare64[i] = 0;
+        }
+        else {
+            gOutputSignalSquare64[i] = SI;
+        }    
+    }
+}
+
+
 
 int main(void)
 {
@@ -58,7 +99,7 @@ int main(void)
     NVIC_ClearPendingIRQ(UART_0_INST_INT_IRQN);
     NVIC_EnableIRQ(UART_0_INST_INT_IRQN);
     /* Configure DMA source, destination and size */
-    
+    sample_finder(count);
     DL_DMA_setSrcAddr(DMA, DMA_CH0_CHAN_ID, (uint32_t) &gOutputSignalSine64[0]);
     DL_DMA_setDestAddr(DMA, DMA_CH0_CHAN_ID, (uint32_t) & (DAC0->DATA0));
     DL_DMA_setTransferSize(DMA, DMA_CH0_CHAN_ID, sizeof(gOutputSignalSine64) / sizeof(uint16_t));
@@ -67,11 +108,10 @@ int main(void)
     
     DL_SYSCTL_enableSleepOnExit();
     while (1) {
-        
-        
         __WFI();
     }
 }
+
 
 void UART_0_INST_IRQHandler(void)
 {
@@ -96,6 +136,13 @@ void UART_0_INST_IRQHandler(void)
                 DL_DMA_setTransferSize(DMA, DMA_CH0_CHAN_ID, sizeof(gOutputSignalSine64) / sizeof(uint16_t));
                 DL_DMA_enableChannel(DMA, DMA_CH0_CHAN_ID);
                 
+            }
+            else if (gEchoData == '3') {
+                DL_DMA_disableChannel(DMA, DMA_CH0_CHAN_ID);
+                DL_DMA_setSrcAddr(DMA, DMA_CH0_CHAN_ID, (uint32_t) &gOutputSignalOff64[0]);
+                DL_DMA_setDestAddr(DMA, DMA_CH0_CHAN_ID, (uint32_t) & (DAC0->DATA0));
+                DL_DMA_setTransferSize(DMA, DMA_CH0_CHAN_ID, sizeof(gOutputSignalOff64) / sizeof(uint16_t));
+                DL_DMA_enableChannel(DMA, DMA_CH0_CHAN_ID);
             }
             break;
         default:

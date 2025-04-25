@@ -37,9 +37,9 @@ DAC12.OutPinConfig.$name             = "ti_driverlib_gpio_GPIOPinGeneric0";
 
 const Board = scripting.addModule("/ti/driverlib/Board", {}, false);
 
-SYSCTL.MFPCLKEn              = true;
-SYSCTL.forceDefaultClkConfig = true;
-SYSCTL.clockTreeEn           = true;
+SYSCTL.MFPCLKEn    = true;
+SYSCTL.clockTreeEn = true;
+SYSCTL.SYSOSC_Freq = 4000000;
 
 UART1.$name                    = "UART_0";
 UART1.enabledInterrupts        = ["RX"];
