@@ -32,7 +32,7 @@
 
 #include "ti/driverlib/dl_dma.h"
 #include "ti_msp_dl_config.h"
-#define COUNT 2048
+#define COUNT 1560
 
 
 #define SI 4095
@@ -77,7 +77,7 @@ void note_switch(uint64_t sample){
     
     }
 }
-uint16_t count = COUNT;
+uint16_t adj_count = COUNT;
 
 void sample_finder(uint16_t count){
     
@@ -99,7 +99,7 @@ int main(void)
     NVIC_ClearPendingIRQ(UART_0_INST_INT_IRQN);
     NVIC_EnableIRQ(UART_0_INST_INT_IRQN);
     /* Configure DMA source, destination and size */
-    sample_finder(count);
+    sample_finder(adj_count);
     DL_DMA_setSrcAddr(DMA, DMA_CH0_CHAN_ID, (uint32_t) &gOutputSignalSine64[0]);
     DL_DMA_setDestAddr(DMA, DMA_CH0_CHAN_ID, (uint32_t) & (DAC0->DATA0));
     DL_DMA_setTransferSize(DMA, DMA_CH0_CHAN_ID, sizeof(gOutputSignalSine64) / sizeof(uint16_t));
@@ -123,7 +123,6 @@ void UART_0_INST_IRQHandler(void)
             if (gEchoData == '1') {
                 DL_DMA_disableChannel(DMA, DMA_CH0_CHAN_ID);
                 DL_DMA_setSrcAddr(DMA, DMA_CH0_CHAN_ID, (uint32_t) &gOutputSignalSquare64[0]);
-                DL_DMA_setDestAddr(DMA, DMA_CH0_CHAN_ID, (uint32_t) & (DAC0->DATA0));
                 DL_DMA_setTransferSize(DMA, DMA_CH0_CHAN_ID, sizeof(gOutputSignalSquare64) / sizeof(uint16_t));
                 DL_DMA_enableChannel(DMA, DMA_CH0_CHAN_ID);
                 
@@ -132,7 +131,6 @@ void UART_0_INST_IRQHandler(void)
             else if (gEchoData == '2') {
                 DL_DMA_disableChannel(DMA, DMA_CH0_CHAN_ID);
                 DL_DMA_setSrcAddr(DMA, DMA_CH0_CHAN_ID, (uint32_t) &gOutputSignalSine64[0]);
-                DL_DMA_setDestAddr(DMA, DMA_CH0_CHAN_ID, (uint32_t) & (DAC0->DATA0));
                 DL_DMA_setTransferSize(DMA, DMA_CH0_CHAN_ID, sizeof(gOutputSignalSine64) / sizeof(uint16_t));
                 DL_DMA_enableChannel(DMA, DMA_CH0_CHAN_ID);
                 
@@ -140,7 +138,6 @@ void UART_0_INST_IRQHandler(void)
             else if (gEchoData == '3') {
                 DL_DMA_disableChannel(DMA, DMA_CH0_CHAN_ID);
                 DL_DMA_setSrcAddr(DMA, DMA_CH0_CHAN_ID, (uint32_t) &gOutputSignalOff64[0]);
-                DL_DMA_setDestAddr(DMA, DMA_CH0_CHAN_ID, (uint32_t) & (DAC0->DATA0));
                 DL_DMA_setTransferSize(DMA, DMA_CH0_CHAN_ID, sizeof(gOutputSignalOff64) / sizeof(uint16_t));
                 DL_DMA_enableChannel(DMA, DMA_CH0_CHAN_ID);
             }
