@@ -38,18 +38,18 @@
 
 #define SI 4095
 //4600 Octave 3 A
-#define A_s 2300 //a
-#define Ash_s 2170 //w
-#define B_s 2050 //s
-#define C_s 1935 //d
-#define Csh_s 1820 //r
-#define D_s 1720 //f
-#define Dsh_s 1625 //t
-#define E_s 1534 //g
-#define F_s 1449 //h
-#define Fsh_s 1369 //u
-#define G_s 1290 //j
-#define Gsh_s 1218 //i
+#define A_s 2273 //a
+#define Ash_s 2145 //w
+#define B_s 2025 //s
+#define C_s 1911 //d
+#define Csh_s 1804 //r
+#define D_s 1703 //f
+#define Dsh_s 1607 //t
+#define E_s 1517 //g
+#define F_s 1432 //h
+#define Fsh_s 1351 //u
+#define G_s 1276 //j
+#define Gsh_s 1204 //i
 
 
 /* Repetitive sine wave */
@@ -170,6 +170,22 @@ void UART_0_INST_IRQHandler(void)
             }
             else if (gEchoData == 'i') {
                 DAC_sample_set(Gsh_s);
+            }
+            else if(gEchoData == ','){
+                adj_count++;
+                DAC_sample_set(adj_count);
+            }
+            else if (gEchoData == '.') {
+                adj_count--;
+                DAC_sample_set(adj_count);
+            }
+            else if(gEchoData == '<'){
+                adj_count = adj_count + 10;
+                DAC_sample_set(adj_count);
+            }
+            else if (gEchoData == '>') {
+                adj_count = adj_count - 10;
+                DAC_sample_set(adj_count);
             }
 
             break;
