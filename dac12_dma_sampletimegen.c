@@ -32,10 +32,24 @@
 
 #include "ti/driverlib/dl_dma.h"
 #include "ti_msp_dl_config.h"
-#define COUNT 1560
+
+#define START_COUNT 1000
 
 
 #define SI 4095
+
+#define A_s 800
+#define Ash_s 900
+#define B_s 1000
+#define C_s 1100
+#define Csh_s 1200
+#define D_s 1300
+#define Dsh_s 1400
+#define E_s 1500
+#define F_s 1600
+#define Fsh_s 1700
+#define G_s 1800
+#define Gsh_s 1900
 
 enum Note{
     C,
@@ -61,23 +75,15 @@ const uint16_t gOutputSignalSine64[] = {2048, 2248, 2447, 2642, 2831, 3013,
     1264, 1453, 1648, 1847};
 
 
-uint16_t gOutputSignalSquare64[COUNT];
+uint16_t gOutputSignalSquare64[START_COUNT];
 uint16_t gOutputSignalOff64[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 
 
 volatile uint8_t gEchoData = 0;
 uint64_t N = 0; //Sample Size
 //pNote = A;
-void note_switch(uint64_t sample){
-    switch (pNote){
-        case A:
-            sample = 2;
 
-        
-    
-    }
-}
-uint16_t adj_count = COUNT;
+uint16_t adj_count = START_COUNT;
 
 void sample_finder(uint16_t count){
     
@@ -91,6 +97,36 @@ void sample_finder(uint16_t count){
     }
 }
 
+void note_switch(){
+    switch (pNote){
+        case A:
+            adj_count = A_s;
+        case Ash:
+            adj_count = Ash_s;
+        case B:
+            adj_count = B_s;
+        case C:
+            adj_count = C_s;
+        case Csh:
+            adj_count = Csh_s;
+        case D:
+            adj_count = D_s;
+        case Dsh:
+            adj_count = Dsh_s;
+        case E:
+            adj_count = E_s;
+        case F:
+            adj_count = F_s;
+        case Fsh:
+            adj_count = Fsh_s;
+        case G:
+            adj_count = G_s;
+        case Gsh:
+            adj_count = Gsh_s;     
+    sample_finder(adj_count);    
+    
+    }
+}
 
 
 int main(void)
@@ -99,7 +135,8 @@ int main(void)
     NVIC_ClearPendingIRQ(UART_0_INST_INT_IRQN);
     NVIC_EnableIRQ(UART_0_INST_INT_IRQN);
     /* Configure DMA source, destination and size */
-    sample_finder(adj_count);
+    pNote = A;
+    note_switch();
     DL_DMA_setSrcAddr(DMA, DMA_CH0_CHAN_ID, (uint32_t) &gOutputSignalSine64[0]);
     DL_DMA_setDestAddr(DMA, DMA_CH0_CHAN_ID, (uint32_t) & (DAC0->DATA0));
     DL_DMA_setTransferSize(DMA, DMA_CH0_CHAN_ID, sizeof(gOutputSignalSine64) / sizeof(uint16_t));
@@ -112,6 +149,13 @@ int main(void)
     }
 }
 
+void reset_DAC(){
+    DL_DMA_disableChannel(DMA, DMA_CH0_CHAN_ID);
+    note_switch();
+    DL_DMA_setSrcAddr(DMA, DMA_CH0_CHAN_ID, (uint32_t) &gOutputSignalSquare64[0]);
+    DL_DMA_setTransferSize(DMA, DMA_CH0_CHAN_ID, sizeof(gOutputSignalSquare64) / sizeof(uint16_t));
+    DL_DMA_enableChannel(DMA, DMA_CH0_CHAN_ID); 
+}
 
 void UART_0_INST_IRQHandler(void)
 {
@@ -141,6 +185,10 @@ void UART_0_INST_IRQHandler(void)
                 DL_DMA_setTransferSize(DMA, DMA_CH0_CHAN_ID, sizeof(gOutputSignalOff64) / sizeof(uint16_t));
                 DL_DMA_enableChannel(DMA, DMA_CH0_CHAN_ID);
             }
+            else if (gEchoData == 'a') {
+                pNote = A;
+                 
+            } 
             break;
         default:
             break;
