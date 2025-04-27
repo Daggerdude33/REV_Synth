@@ -38,18 +38,18 @@
 
 #define SI 4095
 
-#define A_s 800
-#define Ash_s 900
+#define A_s 2000
+#define Ash_s 1500
 #define B_s 1000
-#define C_s 1100
-#define Csh_s 1200
-#define D_s 1300
-#define Dsh_s 1400
-#define E_s 1500
-#define F_s 1600
-#define Fsh_s 1700
-#define G_s 1800
-#define Gsh_s 1900
+#define C_s 1300
+#define Csh_s 1600
+#define D_s 1900
+#define Dsh_s 2200
+#define E_s 2500
+#define F_s 2800
+#define Fsh_s 3100
+#define G_s 3400
+#define Gsh_s 3700
 
 enum Note{
     C,
@@ -85,48 +85,23 @@ uint64_t N = 0; //Sample Size
 
 uint16_t adj_count = START_COUNT;
 
-void sample_finder(uint16_t count){
-    
+void DAC_sample_set(uint16_t count){
+    uint16_t Square[count];
     for(uint64_t i = 0; i < (count); i++){
         if (i < (count/2)) {
-            gOutputSignalSquare64[i] = 0;
+            Square[i] = 0;
         }
         else {
-            gOutputSignalSquare64[i] = SI;
+            Square[i] = SI;
         }    
     }
+    DL_DMA_disableChannel(DMA, DMA_CH0_CHAN_ID);
+    DL_DMA_setSrcAddr(DMA, DMA_CH0_CHAN_ID, (uint32_t) &Square[0]);
+    DL_DMA_setTransferSize(DMA, DMA_CH0_CHAN_ID, sizeof(Square) / sizeof(uint16_t));
+    DL_DMA_enableChannel(DMA, DMA_CH0_CHAN_ID); 
 }
 
-void note_switch(){
-    switch (pNote){
-        case A:
-            adj_count = A_s;
-        case Ash:
-            adj_count = Ash_s;
-        case B:
-            adj_count = B_s;
-        case C:
-            adj_count = C_s;
-        case Csh:
-            adj_count = Csh_s;
-        case D:
-            adj_count = D_s;
-        case Dsh:
-            adj_count = Dsh_s;
-        case E:
-            adj_count = E_s;
-        case F:
-            adj_count = F_s;
-        case Fsh:
-            adj_count = Fsh_s;
-        case G:
-            adj_count = G_s;
-        case Gsh:
-            adj_count = Gsh_s;     
-    sample_finder(adj_count);    
-    
-    }
-}
+
 
 
 int main(void)
@@ -135,14 +110,12 @@ int main(void)
     NVIC_ClearPendingIRQ(UART_0_INST_INT_IRQN);
     NVIC_EnableIRQ(UART_0_INST_INT_IRQN);
     /* Configure DMA source, destination and size */
-    pNote = A;
-    note_switch();
     DL_DMA_setSrcAddr(DMA, DMA_CH0_CHAN_ID, (uint32_t) &gOutputSignalSine64[0]);
     DL_DMA_setDestAddr(DMA, DMA_CH0_CHAN_ID, (uint32_t) & (DAC0->DATA0));
     DL_DMA_setTransferSize(DMA, DMA_CH0_CHAN_ID, sizeof(gOutputSignalSine64) / sizeof(uint16_t));
 
     DL_DMA_enableChannel(DMA, DMA_CH0_CHAN_ID);
-    
+    DAC_sample_set(adj_count);
     DL_SYSCTL_enableSleepOnExit();
     while (1) {
         __WFI();
@@ -150,11 +123,7 @@ int main(void)
 }
 
 void reset_DAC(){
-    DL_DMA_disableChannel(DMA, DMA_CH0_CHAN_ID);
-    note_switch();
-    DL_DMA_setSrcAddr(DMA, DMA_CH0_CHAN_ID, (uint32_t) &gOutputSignalSquare64[0]);
-    DL_DMA_setTransferSize(DMA, DMA_CH0_CHAN_ID, sizeof(gOutputSignalSquare64) / sizeof(uint16_t));
-    DL_DMA_enableChannel(DMA, DMA_CH0_CHAN_ID); 
+
 }
 
 void UART_0_INST_IRQHandler(void)
@@ -165,12 +134,7 @@ void UART_0_INST_IRQHandler(void)
             gEchoData = DL_UART_Main_receiveData(UART_0_INST);
             DL_UART_Main_transmitData(UART_0_INST, gEchoData);
             if (gEchoData == '1') {
-                DL_DMA_disableChannel(DMA, DMA_CH0_CHAN_ID);
-                DL_DMA_setSrcAddr(DMA, DMA_CH0_CHAN_ID, (uint32_t) &gOutputSignalSquare64[0]);
-                DL_DMA_setTransferSize(DMA, DMA_CH0_CHAN_ID, sizeof(gOutputSignalSquare64) / sizeof(uint16_t));
-                DL_DMA_enableChannel(DMA, DMA_CH0_CHAN_ID);
-                
-                
+                DAC_sample_set(adj_count);    
             }
             else if (gEchoData == '2') {
                 DL_DMA_disableChannel(DMA, DMA_CH0_CHAN_ID);
@@ -186,9 +150,52 @@ void UART_0_INST_IRQHandler(void)
                 DL_DMA_enableChannel(DMA, DMA_CH0_CHAN_ID);
             }
             else if (gEchoData == 'a') {
-                pNote = A;
-                 
-            } 
+                DAC_sample_set(A_s);
+            }
+            else if (gEchoData == 'w') {
+                DAC_sample_set(Ash_s);
+            }
+            else if (gEchoData == 's') {
+                adj_count = B_s;
+                reset_DAC();
+            }
+            else if (gEchoData == 'd') {
+                adj_count = C_s;
+                reset_DAC();
+            }
+            else if (gEchoData == 'r') {
+                adj_count = Csh_s;
+                reset_DAC();
+            }
+            else if (gEchoData == 'f') {
+                adj_count = D_s;
+                reset_DAC();
+            }
+            else if (gEchoData == 't') {
+                adj_count = Dsh_s;
+                reset_DAC();
+            }
+            else if (gEchoData == 'g'){
+                adj_count = E_s;
+                reset_DAC();
+            }
+            else if (gEchoData == 'h'){
+                adj_count = F_s;
+                reset_DAC();
+            }
+            else if (gEchoData == 'u'){
+                adj_count = Fsh_s;
+                reset_DAC();
+            }
+            else if (gEchoData == 'j'){
+                adj_count = G_s;
+                reset_DAC();
+            }
+            else if (gEchoData == 'i'){
+                adj_count = G_s;
+                reset_DAC();
+            }
+
             break;
         default:
             break;
