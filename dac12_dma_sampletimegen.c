@@ -33,38 +33,24 @@
 #include "ti/driverlib/dl_dma.h"
 #include "ti_msp_dl_config.h"
 
-#define START_COUNT 1000
+#define START_COUNT 2155
 
 
 #define SI 4095
+//4600 Octave 3 A
+#define A_s 2300 //a
+#define Ash_s 2170 //w
+#define B_s 2050 //s
+#define C_s 1935 //d
+#define Csh_s 1820 //r
+#define D_s 1720 //f
+#define Dsh_s 1625 //t
+#define E_s 1534 //g
+#define F_s 1449 //h
+#define Fsh_s 1369 //u
+#define G_s 1290 //j
+#define Gsh_s 1218 //i
 
-#define A_s 2000
-#define Ash_s 1500
-#define B_s 1000
-#define C_s 1300
-#define Csh_s 1600
-#define D_s 1900
-#define Dsh_s 2200
-#define E_s 2500
-#define F_s 2800
-#define Fsh_s 3100
-#define G_s 3400
-#define Gsh_s 3700
-
-enum Note{
-    C,
-    Csh,
-    D,
-    Dsh,
-    E,
-    F,
-    Fsh,
-    G,
-    Gsh,
-    A,
-    Ash,
-    B,
-}pNote;
 
 /* Repetitive sine wave */
 const uint16_t gOutputSignalSine64[] = {2048, 2248, 2447, 2642, 2831, 3013,
@@ -156,44 +142,34 @@ void UART_0_INST_IRQHandler(void)
                 DAC_sample_set(Ash_s);
             }
             else if (gEchoData == 's') {
-                adj_count = B_s;
-                reset_DAC();
+                DAC_sample_set(B_s);  
             }
             else if (gEchoData == 'd') {
-                adj_count = C_s;
-                reset_DAC();
+                DAC_sample_set(C_s);
             }
             else if (gEchoData == 'r') {
-                adj_count = Csh_s;
-                reset_DAC();
+                DAC_sample_set(Csh_s);
             }
             else if (gEchoData == 'f') {
-                adj_count = D_s;
-                reset_DAC();
+                DAC_sample_set(D_s);
             }
             else if (gEchoData == 't') {
-                adj_count = Dsh_s;
-                reset_DAC();
+                DAC_sample_set(Dsh_s);
             }
-            else if (gEchoData == 'g'){
-                adj_count = E_s;
-                reset_DAC();
+            else if (gEchoData == 'g') {
+                DAC_sample_set(E_s);
             }
-            else if (gEchoData == 'h'){
-                adj_count = F_s;
-                reset_DAC();
+            else if (gEchoData == 'h') {
+                DAC_sample_set(F_s);
             }
-            else if (gEchoData == 'u'){
-                adj_count = Fsh_s;
-                reset_DAC();
+            else if (gEchoData == 'u') {
+                DAC_sample_set(Fsh_s);
             }
-            else if (gEchoData == 'j'){
-                adj_count = G_s;
-                reset_DAC();
+            else if (gEchoData == 'j') {
+                DAC_sample_set(G_s);
             }
-            else if (gEchoData == 'i'){
-                adj_count = G_s;
-                reset_DAC();
+            else if (gEchoData == 'i') {
+                DAC_sample_set(Gsh_s);
             }
 
             break;
