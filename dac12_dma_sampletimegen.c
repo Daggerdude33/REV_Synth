@@ -95,6 +95,7 @@ int main(void)
     SYSCFG_DL_init();
     NVIC_ClearPendingIRQ(UART_0_INST_INT_IRQN);
     NVIC_EnableIRQ(UART_0_INST_INT_IRQN);
+    NVIC_EnableIRQ(UART_1_INST_INT_IRQN);
     /* Configure DMA source, destination and size */
     DL_DMA_setSrcAddr(DMA, DMA_CH0_CHAN_ID, (uint32_t) &gOutputSignalSine64[0]);
     DL_DMA_setDestAddr(DMA, DMA_CH0_CHAN_ID, (uint32_t) & (DAC0->DATA0));
@@ -188,6 +189,21 @@ void UART_0_INST_IRQHandler(void)
                 DAC_sample_set(adj_count);
             }
 
+            break;
+        default:
+            break;
+    }
+}
+void UART_1_INST_IRQHandler(void)
+{
+   switch (DL_UART_Main_getPendingInterrupt(UART_1_INST)) {  
+        case DL_UART_MAIN_IIDX_RX:
+            //DL_GPIO_togglePins(GPIO_LEDS_PORT,GPIO_LEDS_USER_LED_1_PIN | GPIO_LEDS_USER_TEST_PIN);
+            gEchoData = DL_UART_Main_receiveData(UART_1_INST);
+            DL_UART_Main_transmitData(UART_0_INST, gEchoData);
+            if (gEchoData != 0) {
+                DAC_sample_set(gEchoData * 1);
+            }
             break;
         default:
             break;

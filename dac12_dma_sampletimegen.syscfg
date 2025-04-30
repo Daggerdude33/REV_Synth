@@ -13,6 +13,7 @@ const DAC12  = scripting.addModule("/ti/driverlib/DAC12");
 const SYSCTL = scripting.addModule("/ti/driverlib/SYSCTL");
 const UART   = scripting.addModule("/ti/driverlib/UART", {}, false);
 const UART1  = UART.addInstance();
+const UART2  = UART.addInstance();
 
 /**
  * Write custom configuration values to the imported modules.
@@ -49,6 +50,14 @@ UART1.peripheral.rxPin.$assign = "PA11";
 UART1.peripheral.txPin.$assign = "PA10";
 UART1.txPinConfig.$name        = "ti_driverlib_gpio_GPIOPinGeneric1";
 UART1.rxPinConfig.$name        = "ti_driverlib_gpio_GPIOPinGeneric2";
+
+UART2.$name                    = "UART_1";
+UART2.enabledInterrupts        = ["RX","TX"];
+UART2.peripheral.$assign       = "UART1";
+UART2.peripheral.rxPin.$assign = "PB7";
+UART2.peripheral.txPin.$assign = "PB4";
+UART2.txPinConfig.$name        = "ti_driverlib_gpio_GPIOPinGeneric3";
+UART2.rxPinConfig.$name        = "ti_driverlib_gpio_GPIOPinGeneric4";
 
 /**
  * Pinmux solution for unlocked pins/peripherals. This ensures that minor changes to the automatic solver in a future
